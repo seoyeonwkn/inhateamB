@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'main',
     'question',
     'answer',
+    'category',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
