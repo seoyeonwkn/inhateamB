@@ -22,4 +22,7 @@ urlpatterns = [
     path('main/', include('main.urls')),
     path('question/', include('question.urls')),
     path('answer/', include('answer.urls')),
+    path('api/categories/', include('category.urls')),
+    path('api/badges/', include('badge.urls')),
+
 ]
