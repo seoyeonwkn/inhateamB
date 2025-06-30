@@ -33,6 +33,8 @@ AUTH_USER_MODEL = 'main.User'
 
 INSTALLED_APPS = [
     'main',
+    'question',
+    'answer',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
