@@ -7,6 +7,10 @@ from category.models import Category
 class Question(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='question')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='question')
+    # ranking 위한 필드 추가
+    likes = models.ManyToManyField(User, related_name='liked_questions', blank=True)
+    views = models.IntegerField(default=0)
+
     # 외래키
 
     title = models.CharField(max_length=500)

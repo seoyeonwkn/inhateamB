@@ -10,7 +10,7 @@ ENV/
 media/
 **/migrations/__pycache__/
 /migrations/*.pyc
-*/migrations/*.py
+*/migrations/*.py 
 .vscode/
 .env
 *.env
@@ -20,3 +20,4 @@ pip-log.txt
 .coverage
 htmlcov/
 .pytest_cache/
+myenv/
