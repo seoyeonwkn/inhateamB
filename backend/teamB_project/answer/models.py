@@ -28,3 +28,16 @@ class Answer(models.Model):
     class Meta:
         db_table = 'answer' # DB 테이블 이름
 
+class AnswerReport(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='answer_reports')
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='reports')
+    reason = models.TextField(null=False)
+    reported_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'answer_report'
+        unique_together = ('user', 'answer') # 중복 신고 방지
+    
+    def __str__(self):
+        return f"Report by {self.user.login_id} on Answer {self.answer.id}"
+

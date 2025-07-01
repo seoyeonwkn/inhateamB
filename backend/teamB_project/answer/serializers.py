@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Answer
+from .models import Answer, AnswerReport
 from main.models import User
 from question.models import Question
 
@@ -22,3 +22,9 @@ class AnswerSerializer(serializers.ModelSerializer):
     
     def get_like_count(self, obj):
         return obj.likes.count()
+
+class AnswerReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnswerReport
+        fields = ['id', 'user', 'answer', 'reason', 'reported_at']
+        read_only_fields = ['id', 'reported_at']

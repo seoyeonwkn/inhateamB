@@ -4,8 +4,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Answer
-from .serializers import AnswerSerializer
+from .models import Answer, AnswerReport
+from .serializers import AnswerSerializer, AnswerReportSerializer
 from django.shortcuts import get_object_or_404
 from main.models import User
 from question.models import Question
@@ -136,4 +136,36 @@ class AnswerAcceptedCheckView(APIView): # 특정 답변 채택 여부 확인
             'is_accepted': answer.is_accepted
         }, status=status.HTTP_200_OK)
 
+class AnswerReportView(APIView): 
+    # 특정 답변에 대한 누적 신고 수 조회
+    def get(self, request, answer_id):
+        answer = get_object_or_404(Answer, pk=answer_id)
+        report_count = AnswerReport.objects.filter(answer=answer).count()
+        return Response({
+            'answer_id': answer.id,
+            'report_count': report_count
+        }, status=status.HTTP_200_OK)
+    
+    # 특정 답변 신고하기
+    def post(self, request): 
+        user_id = request.data.get('user_id')
+        answer_id = request.data.get('answer_id')
+        reason = request.data.get('reason')
 
+        if not all([user_id, answer_id, reason]):
+            return Response({'detail': 'user_id, answer_id, reason이 모두 필요합니다.'},
+                status=status.HTTP_400_BAD_REQUEST)
+        
+        user = get_object_or_404(User, pk=user_id)
+        answer = get_object_or_404(Answer, pk=answer_id)
+
+        # 동일 user의 중복 신고 방지
+        if AnswerReport.objects.filter(user=user, answer=answer).exists():
+            return Response({'detail': '이미 신고한 답변입니다.'},
+                status=status.HTTP_400_BAD_REQUEST)
+        
+        report = AnswerReport.objects.create(user=user, answer=answer, reason=reason)
+        serializer = AnswerReportSerializer(report)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    
