@@ -22,4 +22,16 @@ class Question(models.Model):
 
     class Meta:
         db_table = 'question' # DB 테이블 명
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='bookmarked_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'question') # 중복 저장 방지
+
+    def __str__(self):
+        return f'{self.user.USERNAME_FIELD} bookmarked {self.question.title}'
+    
         
