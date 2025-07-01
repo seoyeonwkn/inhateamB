@@ -14,6 +14,8 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_accepted = models.BooleanField(default=False)
 
+    likes = models.ManyToManyField(User, related_name='liked_answers', blank=True)
+
     def __str__(self):
         return f"Answer by {self.user.login_id} on Q{self.question.title}"
     
@@ -26,15 +28,3 @@ class Answer(models.Model):
     class Meta:
         db_table = 'answer' # DB 테이블 이름
 
-
-''' 
-<views.py의 채택하는 함수>
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from .models import Answer
-
-def accept_answer(request, answer_id):
-    answer = get_object_or_404(Answer, pk=answer_id)
-    answer.mark_as_accepted()  # 모델에 정의된 로직 호출
-    return JsonResponse({'status': 'accepted'})
-'''

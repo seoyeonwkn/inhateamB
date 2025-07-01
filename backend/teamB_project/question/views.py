@@ -32,7 +32,9 @@ class QuestionView(APIView):
     # 질문 수정
     def put(self, request, pk):
         question = get_object_or_404(Question, pk=pk)
-        if question.user != request.user: # 질문자와 요청자 다르면 수정 불가
+        user_id = request.data.get('user_id')
+
+        if not user_id or question.user.id != int(user_id): # 질문자와 요청자 다르면 수정 불가
             return Response({'detail': '수정 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
         
         serializer = QuestionSerializer(question, data=request.data, partial=True)
@@ -44,14 +46,16 @@ class QuestionView(APIView):
     # 질문 삭제
     def delete(self, request, pk):
         question = get_object_or_404(Question, pk=pk)
-        if question.user != request.user:
+        user_id = request.query_params.get('user_id')
+
+        if not user_id or question.user.id != int(user_id):
             return Response({'detail': '삭제 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
         
         question.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) # 삭제 성공
         
-class QuestionListView(APIView):
-    def get(self, request): # 질문 검색(카테고리별/제목 키워드별/기간 별/작성자 별)
+class QuestionListView(APIView): # 질문 검색(카테고리별/제목 키워드별/기간 별/작성자 별)
+    def get(self, request): 
         category_id = request.query_params.get('category')
         keyword = request.query_params.get('keyword')
         date_range = request.query_params.get('date') # '1', '7' , '30', '180'
