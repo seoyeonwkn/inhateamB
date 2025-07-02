@@ -90,7 +90,7 @@ class AnswerView(APIView):
             status=status.HTTP_403_FORBIDDEN)
         
         answer.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response("답변 삭제가 완료되었습니다.", status=status.HTTP_204_NO_CONTENT)
     
 class QuestionAnswersView(APIView): # 특정 게시물의 답변 조회 및 정렬하기
     def get(self, request, question_id):
