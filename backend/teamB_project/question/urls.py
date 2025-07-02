@@ -19,8 +19,8 @@ urlpatterns = [
     path('questions/rank/', QuestionRankingView.as_view(), name='question-ranking'),             # 질문 랭킹 조회 (조회수/좋아요/답변 수 기준)
 
     # 북마크 관련
-    path('bookmarks/', BookmarkView.as_view(), name='bookmark-list'),                            # 북마크 조회 (GET), 삭제 (DELETE, 쿼리파라미터 포함)
-    path('bookmarks/<int:question_id>/', BookmarkView.as_view(), name='bookmark-add'),           # 북마크 추가 (POST)
+    path('bookmarks/', BookmarkView.as_view(), name='bookmark-list'),                            # 북마크 조회 (GET)
+    path('bookmarks/<int:question_id>/', BookmarkView.as_view(), name='bookmark-add'),           # 북마크 추가 (POST), 삭제 (DELETE)
 
     # 질문 좋아요 관련
     path('questions/<int:question_id>/like/', QuestionLikeView.as_view(), name='question-like'), # 질문에 좋아요 및 취소(POST), 좋아요 조회(GET)

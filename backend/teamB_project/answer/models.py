@@ -34,6 +34,7 @@ class AnswerReport(models.Model):
     reason = models.TextField(null=False)
     reported_at = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
         db_table = 'answer_report'
         unique_together = ('user', 'answer') # 중복 신고 방지
