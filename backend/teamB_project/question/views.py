@@ -91,9 +91,9 @@ class QuestionListView(APIView): # 질문 검색(카테고리별/제목 키워�
 
 class QuestionRankingView(APIView): # 10위까지 랭킹(조회수, 좋아요 수, 답변 수)
     def get(self, request):
-        sort = request.query_params.get('sort', 'views')  # 기본은 조회수 ranking
+        sort = request.query_params.get('sort') 
 
-        valid_sorts = ['likes', 'answers', 'views']
+        valid_sorts = ['likes', 'answers']
         if sort not in valid_sorts:
             return Response(
                 {"detail": f"지원하지 않는 정렬 기준입니다. sort는 {valid_sorts} 중 하나여야 합니다."},
@@ -101,16 +101,14 @@ class QuestionRankingView(APIView): # 10위까지 랭킹(조회수, 좋아요 �
             )
 
         queryset = Question.objects.annotate(
-            answer_count=Count('answer'),
-            like_count=Count('likes')
+            answer_count=Count('answers', distinct=True),
+            like_count=Count('likes', distinct=True)
         )
 
         if sort == 'likes':
             queryset = queryset.order_by('-like_count')
         elif sort == 'answers':
             queryset = queryset.order_by('-answer_count')
-        else:  # 'views'
-            queryset = queryset.order_by('-views')
 
         top_questions = queryset[:10]
         serializer = QuestionSerializer(top_questions, many=True)
@@ -146,7 +144,7 @@ class BookmarkView(APIView):
             status=status.HTTP_400_BAD_REQUEST)
         
         serializer = BookmarkSerializer(bookmark)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data ,status=status.HTTP_201_CREATED)
     
     def delete(self, request, question_id):
         user_id = request.query_params.get('user')
@@ -164,7 +162,7 @@ class BookmarkView(APIView):
             status=status.HTTP_404_NOT_FOUND)
         
         bookmark.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response("북마크가 삭제되었습니다.", status=status.HTTP_204_NO_CONTENT)
 
 # 토글 형식 질문 좋아요 기능
 class QuestionLikeView(APIView):
