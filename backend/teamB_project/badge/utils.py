@@ -1,5 +1,4 @@
-# badge/utils.py
-from .models import Badge, UserBadge
+from .models import Badge, UserBadge, BadgeLog, BadgeLevel
 from question.models import Question
 from answer.models import Answer
 
@@ -34,7 +33,23 @@ def check_and_award_badges(user):
                 is_accepted=True,
                 question__category__name="고양이"
             ).count()
-
+        
             if count >= 3:
-                UserBadge.objects.create(user=user, badge=badge)
-                print(f"✅ {user.login_id} → 뱃지 '{badge.name}' 지급 완료")
+                # 1. 지급할 뱃지레벨 선택 (조건에 따라)
+                level = BadgeLevel.objects.filter(badge=badge, level=1).first()
+
+                # 2. 지급
+                user_badge = UserBadge.objects.create(
+                    user=user,
+                    badge=badge,
+                    level=level  # Null 허용되므로 없어도 괜찮음
+                )
+
+                # 3. 지급 로그 남기기
+                BadgeLog.objects.create(
+                    user_badge=user_badge,
+                    reason="고양이 카테고리 채택 답변 3회 이상"
+                )
+
+                print(f"{user.login_id}님, '{badge.name}' 뱃지를 획득했어요! (레벨: {level.title if level else '기본'})")
+
