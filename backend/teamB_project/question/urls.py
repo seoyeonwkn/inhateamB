@@ -7,7 +7,8 @@ from .views import (
     QuestionRankingView,
     QuestionView,
     QuestionListView,
-    BookmarkView
+    BookmarkView,
+    QuestionLikeView
 )
 
 urlpatterns = [
@@ -20,4 +21,7 @@ urlpatterns = [
     # 북마크 관련
     path('bookmarks/', BookmarkView.as_view(), name='bookmark-list'),                            # 북마크 조회 (GET), 삭제 (DELETE, 쿼리파라미터 포함)
     path('bookmarks/<int:question_id>/', BookmarkView.as_view(), name='bookmark-add'),           # 북마크 추가 (POST)
+
+    # 질문 좋아요 관련
+    path('questions/<int:question_id>/like/', QuestionLikeView.as_view(), name='question-like'), # 질문에 좋아요 및 취소(POST), 좋아요 조회(GET)
 ]

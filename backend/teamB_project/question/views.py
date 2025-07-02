@@ -18,7 +18,7 @@ class QuestionView(APIView):
             return Response(serializer.data)
         else: # 전체 질문 조회
             questions = Question.objects.all().order_by('-created_at')
-            serializer = QuestionSerializer(question, many=True)
+            serializer = QuestionSerializer(questions, many=True)
             return Response(serializer.data)
     
     # 질문 생성
@@ -139,7 +139,7 @@ class BookmarkView(APIView):
         user = get_object_or_404(User, pk=user_id)
         question = get_object_or_404(Question, pk=question_id)
 
-        bookmark, created = Bookmark.object.get_or_create(user=user, question=question)
+        bookmark, created = Bookmark.objects.get_or_create(user=user, question=question)
 
         if not created:
             return Response({'detail': '이미 북마크한 질문입니다.'},
@@ -157,7 +157,7 @@ class BookmarkView(APIView):
         user = get_object_or_404(User, pk=user_id)
         question = get_object_or_404(Question, pk=question_id)
 
-        bookmark = Bookmark.object.filter(user=user, question=question).first()
+        bookmark = Bookmark.objects.filter(user=user, question=question).first()
 
         if not bookmark:
             return Response({'detail': '북마크하지 않은 질문입니다.'},
@@ -165,4 +165,33 @@ class BookmarkView(APIView):
         
         bookmark.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# 토글 형식 질문 좋아요 기능
+class QuestionLikeView(APIView):
+    # 좋아요 추가 또는 취소
+    def post(self, request, question_id):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'detail': 'user_id가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = get_object_or_404(User, pk=user_id)
+        question = get_object_or_404(Question, pk=question_id)
+
+        if user in question.likes.all():
+            question.likes.remove(user)
+            return Response({'detail': '좋아요가 취소되었습니다.'}, status=status.HTTP_200_OK)
+        else:
+            question.likes.add(user)
+            return Response({'detail': '좋아요가 추가되었습니다.'}, status=status.HTTP_201_CREATED)
+    
+    # 특정 질문의 좋아요 누적 수 조회
+    def get(self, request, question_id):
+        question = get_object_or_404(Question, pk=question_id)
+        like_count = question.likes.count()
+        return Response({
+            'question_id': question.id,
+            'like_count': like_count
+        }, status=status.HTTP_200_OK)
+        
+
     

@@ -17,7 +17,7 @@ class Answer(models.Model):
     likes = models.ManyToManyField(User, related_name='liked_answers', blank=True)
 
     def __str__(self):
-        return f"Answer by {self.user.login_id} on Q{self.question.title}"
+        return f"Answer by {self.user.login_id} on Q{self.question.title if self.question else 'Deleted'}"
     
     def mark_as_accepted(self):
         Answer.objects.filter(question=self.question).update(is_accepted=False)

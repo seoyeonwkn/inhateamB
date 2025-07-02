@@ -100,7 +100,7 @@ class QuestionAnswersView(APIView): # 특정 게시물의 답변 조회 및 정�
         answers = Answer.objects.filter(question=question)
 
         if sort == 'likes': # 좋아요 순
-            answers = answers.annotate(like_count=Count('likes')).order_by('-is_accepted', '-like-count', '-created_at')
+            answers = answers.annotate(like_count=Count('likes')).order_by('-is_accepted', '-like_count', '-created_at')
         
         else: # 최신 순 또는 잘못된 값
             answers = answers.order_by('-is_accepted', '-created_at')
@@ -108,7 +108,8 @@ class QuestionAnswersView(APIView): # 특정 게시물의 답변 조회 및 정�
         serializer = AnswerSerializer(answers, many=True)
         return Response(serializer.data)
 
-class AnswerLikeView(APIView): # 좋아요 및 좋아요 취소(토글 형식)
+class AnswerLikeView(APIView):
+    # 좋아요 및 좋아요 취소(토글 형식)
     def post(self, request, answer_id):
         user_id = request.data.get('user_id')
         if not user_id:
@@ -126,6 +127,15 @@ class AnswerLikeView(APIView): # 좋아요 및 좋아요 취소(토글 형식)
             answer.likes.add(user)
             return Response({'detail': '좋아요가 추가되었습니다.'},
                 status=status.HTTP_201_CREATED)
+    
+    # 특정 답변의 누적 좋아요 수 조회
+    def get(self, request, answer_id):
+        answer = get_object_or_404(Answer, pk=answer_id)
+        like_count = answer.likes.count()
+        return Response({
+            'answer_id': answer.id,
+            'like_count': like_count
+        }, status=status.HTTP_200_OK)
 
 class AnswerAcceptedCheckView(APIView): # 특정 답변 채택 여부 확인
     def get(self, request, answer_id):

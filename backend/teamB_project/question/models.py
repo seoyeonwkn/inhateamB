@@ -5,8 +5,8 @@ from category.models import Category
 
 # Create your models here.
 class Question(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='question')
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='question')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='questions')
     # ranking 위한 필드 추가
     likes = models.ManyToManyField(User, related_name='liked_questions', blank=True)
     views = models.IntegerField(default=0)
@@ -32,6 +32,6 @@ class Bookmark(models.Model):
         unique_together = ('user', 'question') # 중복 저장 방지
 
     def __str__(self):
-        return f'{self.user.USERNAME_FIELD} bookmarked {self.question.title}'
+        return f'{self.user.login_id} bookmarked {self.question.title}'
     
         
