@@ -25,7 +25,7 @@ class QuestionView(APIView):
     def post(self, request):
         serializer = QuestionSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user) # 질문을 생성한 user와 연결
+            serializer.save() 
             return Response(serializer.data, status=status.HTTP_201_CREATED) # 질문 생성 성공
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # 질문 생성 오류
     
