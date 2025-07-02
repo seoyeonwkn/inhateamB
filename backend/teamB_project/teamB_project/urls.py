@@ -24,5 +24,4 @@ urlpatterns = [
     path('answer/', include('answer.urls')),
     path('api/categories/', include('category.urls')),
     path('api/badges/', include('badge.urls')),
-
 ]
