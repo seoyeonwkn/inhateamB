@@ -14,8 +14,10 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_accepted = models.BooleanField(default=False)
 
+    likes = models.ManyToManyField(User, related_name='liked_answers', blank=True)
+
     def __str__(self):
-        return f"Answer by {self.user.login_id} on Q{self.question.title}"
+        return f"Answer by {self.user.login_id} on Q{self.question.title if self.question else 'Deleted'}"
     
     def mark_as_accepted(self):
         Answer.objects.filter(question=self.question).update(is_accepted=False)
@@ -26,15 +28,16 @@ class Answer(models.Model):
     class Meta:
         db_table = 'answer' # DB 테이블 이름
 
+class AnswerReport(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='answer_reports')
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='reports')
+    reason = models.TextField(null=False)
+    reported_at = models.DateTimeField(auto_now_add=True)
 
-''' 
-<views.py의 채택하는 함수>
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from .models import Answer
+    class Meta:
+        db_table = 'answer_report'
+        unique_together = ('user', 'answer') # 중복 신고 방지
+    
+    def __str__(self):
+        return f"Report by {self.user.login_id} on Answer {self.answer.id}"
 
-def accept_answer(request, answer_id):
-    answer = get_object_or_404(Answer, pk=answer_id)
-    answer.mark_as_accepted()  # 모델에 정의된 로직 호출
-    return JsonResponse({'status': 'accepted'})
-'''

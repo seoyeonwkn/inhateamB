@@ -18,21 +18,23 @@ class QuestionView(APIView):
             return Response(serializer.data)
         else: # 전체 질문 조회
             questions = Question.objects.all().order_by('-created_at')
-            serializer = QuestionSerializer(question, many=True)
+            serializer = QuestionSerializer(questions, many=True)
             return Response(serializer.data)
     
     # 질문 생성
     def post(self, request):
         serializer = QuestionSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user) # 질문을 생성한 user와 연결
+            serializer.save() 
             return Response(serializer.data, status=status.HTTP_201_CREATED) # 질문 생성 성공
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # 질문 생성 오류
     
     # 질문 수정
     def put(self, request, pk):
         question = get_object_or_404(Question, pk=pk)
-        if question.user != request.user: # 질문자와 요청자 다르면 수정 불가
+        user_id = request.data.get('user_id')
+
+        if not user_id or question.user.id != int(user_id): # 질문자와 요청자 다르면 수정 불가
             return Response({'detail': '수정 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
         
         serializer = QuestionSerializer(question, data=request.data, partial=True)
@@ -44,14 +46,16 @@ class QuestionView(APIView):
     # 질문 삭제
     def delete(self, request, pk):
         question = get_object_or_404(Question, pk=pk)
-        if question.user != request.user:
+        user_id = request.query_params.get('user_id')
+
+        if not user_id or question.user.id != int(user_id):
             return Response({'detail': '삭제 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
         
         question.delete()
         return Response(status=status.HTTP_204_NO_CONTENT) # 삭제 성공
         
-class QuestionListView(APIView):
-    def get(self, request): # 질문 검색(카테고리별/제목 키워드별/기간 별/작성자 별)
+class QuestionListView(APIView): # 질문 검색(카테고리별/제목 키워드별/기간 별/작성자 별)
+    def get(self, request): 
         category_id = request.query_params.get('category')
         keyword = request.query_params.get('keyword')
         date_range = request.query_params.get('date') # '1', '7' , '30', '180'
@@ -135,7 +139,7 @@ class BookmarkView(APIView):
         user = get_object_or_404(User, pk=user_id)
         question = get_object_or_404(Question, pk=question_id)
 
-        bookmark, created = Bookmark.object.get_or_create(user=user, question=question)
+        bookmark, created = Bookmark.objects.get_or_create(user=user, question=question)
 
         if not created:
             return Response({'detail': '이미 북마크한 질문입니다.'},
@@ -153,7 +157,7 @@ class BookmarkView(APIView):
         user = get_object_or_404(User, pk=user_id)
         question = get_object_or_404(Question, pk=question_id)
 
-        bookmark = Bookmark.object.filter(user=user, question=question).first()
+        bookmark = Bookmark.objects.filter(user=user, question=question).first()
 
         if not bookmark:
             return Response({'detail': '북마크하지 않은 질문입니다.'},
@@ -161,4 +165,33 @@ class BookmarkView(APIView):
         
         bookmark.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# 토글 형식 질문 좋아요 기능
+class QuestionLikeView(APIView):
+    # 좋아요 추가 또는 취소
+    def post(self, request, question_id):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'detail': 'user_id가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = get_object_or_404(User, pk=user_id)
+        question = get_object_or_404(Question, pk=question_id)
+
+        if user in question.likes.all():
+            question.likes.remove(user)
+            return Response({'detail': '좋아요가 취소되었습니다.'}, status=status.HTTP_200_OK)
+        else:
+            question.likes.add(user)
+            return Response({'detail': '좋아요가 추가되었습니다.'}, status=status.HTTP_201_CREATED)
+    
+    # 특정 질문의 좋아요 누적 수 조회
+    def get(self, request, question_id):
+        question = get_object_or_404(Question, pk=question_id)
+        like_count = question.likes.count()
+        return Response({
+            'question_id': question.id,
+            'like_count': like_count
+        }, status=status.HTTP_200_OK)
+        
+
     
