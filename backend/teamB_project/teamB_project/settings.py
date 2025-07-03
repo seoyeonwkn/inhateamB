@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'answer',
     'category',
     'badge',
-    'drf_yasg',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
