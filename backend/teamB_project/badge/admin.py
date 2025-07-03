@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import Badge, UserBadge, BadgeLevel, BadgeLog
+from .models import Badge, UserBadge, BadgeLog
 
 @admin.register(Badge)
 class BadgeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'level', 'category']
+    list_display = ['name', 'category']
     search_fields = ['name']
-    list_filter = ['category', 'level']
+    list_filter = ['category']
 
 
 @admin.register(UserBadge)
@@ -13,13 +13,6 @@ class UserBadgeAdmin(admin.ModelAdmin):
     list_display = ['user', 'badge', 'awarded_at']
     search_fields = ['user__login_id', 'badge__name']
     list_filter = ['awarded_at']
-
-
-@admin.register(BadgeLevel)
-class BadgeLevelAdmin(admin.ModelAdmin):
-    list_display = ['badge', 'level', 'title']
-    search_fields = ['badge__name', 'title']
-    list_filter = ['level']
 
 
 @admin.register(BadgeLog)
