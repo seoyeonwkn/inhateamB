@@ -43,7 +43,10 @@ urlpatterns = [
     path('answer/', include('answer.urls')),
     path('api/categories/', include('category.urls')),
     path('api/badges/', include('badge.urls')),
+<<<<<<< HEAD
+=======
 
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+>>>>>>> 78e884844e654d9f5b8f19e3ff38d49f7e43803e
 ]

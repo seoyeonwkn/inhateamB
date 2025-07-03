@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserAPI, ProfileAPI, PortfolioAPI
+from .views import *
 
 urlpatterns = [
     path('users/', UserAPI.as_view()),
@@ -10,4 +10,9 @@ urlpatterns = [
 
     path('portfolios/', PortfolioAPI.as_view()),
     path('portfolios/<int:portfolio_id>/', PortfolioAPI.as_view()),
+    
+    path('users/<int:user_id>/answers/', UserAnswerListAPIView.as_view()),
+    path('users/<int:user_id>/answers/category/', UserAnswerByCategoryAPIView.as_view()),
+    path('users/<int:user_id>/stats/', UserStatsAPIView.as_view()),
+    path('users/popular/', PopularUserAPIView.as_view()),
 ]
