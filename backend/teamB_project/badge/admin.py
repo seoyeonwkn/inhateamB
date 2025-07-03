@@ -27,3 +27,5 @@ class BadgeLogAdmin(admin.ModelAdmin):
     list_display = ['user_badge', 'reason', 'created_at']
     search_fields = ['user_badge__user__login_id', 'reason']
     list_filter = ['created_at']
+
+
