@@ -23,10 +23,21 @@ class QuestionView(APIView):
     
     # 질문 생성
     def post(self, request):
-        serializer = QuestionSerializer(data=request.data)
+        user_id = request.data.get('user')
+        if not user_id:
+            return Response({'detail': 'User의 ID가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(id=user_id)
+        except:
+            return Response({'detail': '해당 유저가 존재하지 않습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data.copy()
+        data.pop('user')
+        
+        serializer = QuestionSerializer(data=data)
         if serializer.is_valid():
-            serializer.save() 
-            return Response(serializer.data, status=status.HTTP_201_CREATED) # 질문 생성 성공
+            question = serializer.save(user=user) 
+            return Response(QuestionSerializer(question).data, status=status.HTTP_201_CREATED) # 질문 생성 성공
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # 질문 생성 오류
     
     # 질문 수정
