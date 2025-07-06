@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from .models import Question, Bookmark
+from .models import Question, Bookmark, Category
 from category.serializers import CategorySerializer
 from main.serializers import UserSerializer
 
 class QuestionSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField(read_only=True)
-    categories = CategorySerializer(read_only=True, many=True)    
+    categories = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), many=True)  
     like_count = serializers.SerializerMethodField()
     answer_count = serializers.IntegerField(read_only=True)
 
