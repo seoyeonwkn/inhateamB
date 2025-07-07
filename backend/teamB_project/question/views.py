@@ -67,16 +67,23 @@ class QuestionView(APIView):
         
 class QuestionListView(APIView): # 질문 검색(카테고리별/제목 키워드별/기간 별/작성자 별)
     def get(self, request): 
-        category_id = request.query_params.get('category')
+        categories_id = request.query_params.get('categories')
         keyword = request.query_params.get('keyword')
         date_range = request.query_params.get('date') # '1', '7' , '30', '180'
         author_id = request.query_params.get('user')
 
         questions = Question.objects.all()
 
-        if category_id: # 카테고리별 질문 조회(최신순)
-            questions = questions.filter(category__id=category_id)
-        
+        if categories_id: # 카테고리별 질문 조회(최신순)
+            try:
+                category_id_list = [int(cid) for cid in categories_id.split(',')]
+                questions = questions.filter(categories__id__in=category_id_list).distinct()
+            except ValueError:
+                return Response(
+                    {'detail': '카테고리 ID는 정수 또는 쉼표로 구분된 정수여야 합니다.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
         if keyword: # 제목 키워드 별 조회
             questions = questions.filter(title__icontains=keyword)
 
@@ -92,8 +99,14 @@ class QuestionListView(APIView): # 질문 검색(카테고리별/제목 키워�
             questions = questions.filter(created_at__gte=since)
 
         if author_id: # 질문 작성자 기준 조회
-            questions = questions.filter(user__id=author_id)
-        
+            try:
+                questions = questions.filter(user__id=int(author_id))
+            except ValueError:
+                return Response(
+                    {'detail': '작성자 ID는 정수여야 합니다.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+           
         questions = questions.order_by('-created_at') # 최신 순으로 정렬
         serializer = QuestionSerializer(questions, many=True)
         return Response(serializer.data)
