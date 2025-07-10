@@ -77,7 +77,18 @@ CORS_ALLOW_HEADERS = [  # 허용할 헤더
     'x-requested-with',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://jinsimin.p-e.kr/",
+    "http://localhost:5173",
+    "http://127.0.0.1:8000",
+    "https://peppy-druid-bc3f53.netlify.app/",
+    "https://jinsimin.p-e.kr/",
+    "https://localhost:5173",
+    "https://127.0.0.1:8000",
+]
+
+# CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'teamB_project.urls'
 
